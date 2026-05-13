@@ -1,11 +1,12 @@
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  FlatList,
+  Button, FlatList,
   Image,
   SafeAreaView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 
 const mockApiFoods = [
@@ -56,6 +57,13 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>FlavorDash</Text>
       <Text style={styles.subtitle}>Katalog Makanan</Text>
+
+      <View style={styles.loginButton}>
+  <Button
+    title="Login & Lihat Detail Pesanan"
+    onPress={() => router.push("/login")}
+  />
+</View>
 
       <FlatList
         data={foods}
@@ -120,4 +128,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#E63946",
   },
+  loginButton: {
+  marginBottom: 16,
+}
 });

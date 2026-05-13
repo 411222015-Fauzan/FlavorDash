@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { checkAuth } from "./middleware";
+import { checkAuth } from "../utils/middleware";
 
 export default function DetailPesananScreen() {
   const [loading, setLoading] = useState(true);
