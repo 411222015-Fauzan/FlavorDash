@@ -1,98 +1,123 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const mockApiFoods = [
+  {
+    id: "1",
+    name: "Burger Cheese",
+    price: "Rp 25.000",
+    description: "Burger dengan daging sapi, keju, dan sayuran segar.",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+  },
+  {
+    id: "2",
+    name: "Pizza Pepperoni",
+    price: "Rp 45.000",
+    description: "Pizza lezat dengan topping pepperoni dan saus tomat.",
+    image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
+  },
+  {
+    id: "3",
+    name: "Sushi Roll",
+    price: "Rp 35.000",
+    description: "Sushi roll dengan nasi, nori, ikan, dan sayuran.",
+    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
+  },
+];
 
-export default function HomeScreen() {
+export default function App() {
+  const [foods, setFoods] = useState([]);
+
+  useEffect(() => {
+    // Simulasi ambil data dari API
+    setFoods(mockApiFoods);
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.image }} style={styles.foodImage} />
+
+      <View style={styles.foodInfo}>
+        <Text style={styles.foodName}>{item.name}</Text>
+        <Text style={styles.foodDescription}>{item.description}</Text>
+        <Text style={styles.foodPrice}>{item.price}</Text>
+      </View>
+    </View>
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>FlavorDash</Text>
+      <Text style={styles.subtitle}>Katalog Makanan</Text>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <FlatList
+        data={foods}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.list}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#F8F8F8",
+    paddingHorizontal: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginTop: 20,
+    color: "#E63946",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 16,
+    color: "#555",
+  },
+  list: {
+    paddingBottom: 20,
+  },
+  card: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+    alignItems: "center",
+    elevation: 3,
+  },
+  foodImage: {
+    width: "35%",
+    aspectRatio: 1,
+    borderRadius: 10,
+  },
+  foodInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  foodName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  foodDescription: {
+    fontSize: 14,
+    color: "#666",
+    marginVertical: 6,
+  },
+  foodPrice: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#E63946",
   },
 });
