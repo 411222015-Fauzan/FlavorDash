@@ -1,54 +1,74 @@
-import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Button, FlatList,
+  FlatList,
   Image,
-  SafeAreaView,
   StyleSheet,
   Text,
-  View
+  TouchableOpacity,
+  View,
 } from "react-native";
+
+import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const mockApiFoods = [
   {
     id: "1",
     name: "Burger Cheese",
     price: "Rp 25.000",
-    description: "Burger dengan daging sapi, keju, dan sayuran segar.",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+    description: "Burger premium dengan daging sapi dan keju.",
+    image:
+      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
   },
   {
     id: "2",
     name: "Pizza Pepperoni",
     price: "Rp 45.000",
-    description: "Pizza lezat dengan topping pepperoni dan saus tomat.",
-    image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
+    description: "Pizza lezat dengan topping pepperoni.",
+    image:
+      "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
   },
   {
     id: "3",
     name: "Sushi Roll",
     price: "Rp 35.000",
-    description: "Sushi roll dengan nasi, nori, ikan, dan sayuran.",
-    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
+    description: "Sushi roll segar khas Jepang.",
+    image:
+      "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
   },
 ];
 
-export default function App() {
+export default function HomeScreen() {
   const [foods, setFoods] = useState([]);
 
   useEffect(() => {
-    // Simulasi ambil data dari API
     setFoods(mockApiFoods);
   }, []);
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: any) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.foodImage} />
+      <Image
+        source={{ uri: item.image }}
+        style={styles.foodImage}
+      />
 
       <View style={styles.foodInfo}>
         <Text style={styles.foodName}>{item.name}</Text>
-        <Text style={styles.foodDescription}>{item.description}</Text>
+
+        <Text style={styles.foodDescription}>
+          {item.description}
+        </Text>
+
         <Text style={styles.foodPrice}>{item.price}</Text>
+
+        <TouchableOpacity
+          style={styles.orderButton}
+          onPress={() => router.push("/login")}
+        >
+          <Text style={styles.orderButtonText}>
+            Pesan Sekarang
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -56,20 +76,25 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>FlavorDash</Text>
-      <Text style={styles.subtitle}>Katalog Makanan</Text>
 
-      <View style={styles.loginButton}>
-  <Button
-    title="Login & Lihat Detail Pesanan"
-    onPress={() => router.push("/login")}
-  />
-</View>
+      <Text style={styles.subtitle}>
+        Temukan makanan favoritmu dengan cepat dan mudah
+      </Text>
+
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={() => router.push("/login")}
+      >
+        <Text style={styles.loginButtonText}>
+          Login untuk Melihat Pesanan
+        </Text>
+      </TouchableOpacity>
 
       <FlatList
         data={foods}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );
@@ -78,57 +103,86 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#F4F4F4",
     paddingHorizontal: 16,
   },
+
   title: {
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: "bold",
-    marginTop: 20,
     color: "#E63946",
+    marginTop: 10,
   },
+
   subtitle: {
     fontSize: 16,
-    marginBottom: 16,
-    color: "#555",
+    color: "#666",
+    marginBottom: 20,
+    lineHeight: 24,
   },
-  list: {
-    paddingBottom: 20,
-  },
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 14,
+
+  loginButton: {
+    backgroundColor: "#E63946",
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
-    elevation: 3,
+    marginBottom: 20,
   },
+
+  loginButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  card: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    marginBottom: 20,
+    overflow: "hidden",
+    elevation: 5,
+  },
+
   foodImage: {
-    width: "35%",
-    aspectRatio: 1,
-    borderRadius: 10,
+    width: "100%",
+    height: 220,
   },
+
   foodInfo: {
-    flex: 1,
-    marginLeft: 12,
+    padding: 16,
   },
+
   foodName: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#222",
   },
+
   foodDescription: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#666",
-    marginVertical: 6,
+    lineHeight: 22,
+    marginTop: 8,
   },
+
   foodPrice: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#E63946",
+    marginTop: 14,
   },
-  loginButton: {
-  marginBottom: 16,
-}
+
+  orderButton: {
+    backgroundColor: "#222",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 16,
+  },
+
+  orderButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
