@@ -18,7 +18,7 @@ const mockApiFoods = [
     price: "Rp 25.000",
     description: "Burger premium dengan daging sapi dan keju.",
     image:
-      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+      "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
   },
   {
     id: "2",
@@ -26,7 +26,7 @@ const mockApiFoods = [
     price: "Rp 45.000",
     description: "Pizza lezat dengan topping pepperoni.",
     image:
-      "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
+      "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg",
   },
   {
     id: "3",
@@ -34,7 +34,7 @@ const mockApiFoods = [
     price: "Rp 35.000",
     description: "Sushi roll segar khas Jepang.",
     image:
-      "https://images.unsplash.com/photo-1579871494447-9811cf80d66c",
+      "https://images.pexels.com/photos/357756/pexels-photo-357756.jpeg",
   },
 ];
 
@@ -75,11 +75,13 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>FlavorDash</Text>
+      <View style={styles.heroSection}>
+  <Text style={styles.title}>FlavorDash</Text>
 
-      <Text style={styles.subtitle}>
-        Temukan makanan favoritmu dengan cepat dan mudah
-      </Text>
+  <Text style={styles.subtitle}>
+    Temukan makanan favoritmu dengan cepat dan mudah
+  </Text>
+</View>
 
       <TouchableOpacity
         style={styles.loginButton}
@@ -107,19 +109,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 
-  title: {
-    fontSize: 34,
-    fontWeight: "bold",
-    color: "#E63946",
-    marginTop: 10,
-  },
+ heroSection: {
+  backgroundColor: "#E63946",
+  borderRadius: 20,
+  paddingVertical: 18,
+  paddingHorizontal: 20,
+  marginTop: 10,
+  marginBottom: 16,
+},
 
-  subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 20,
-    lineHeight: 24,
-  },
+title: {
+  fontSize: 30,
+  fontWeight: "bold",
+  color: "white",
+},
+
+subtitle: {
+  fontSize: 14,
+  color: "#FFEAEA",
+  marginTop: 6,
+  lineHeight: 20,
+},
 
   loginButton: {
     backgroundColor: "#E63946",

@@ -43,7 +43,7 @@ export default function DetailPesananScreen() {
       <View style={styles.card}>
         <Image
           source={{
-            uri: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+            uri: "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
           }}
           style={styles.foodImage}
         />
