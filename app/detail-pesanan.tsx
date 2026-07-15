@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { checkAuth } from "../utils/middleware";
+import { useCart } from "../context/CartContext";
 
 export default function DetailPesananScreen() {
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ export default function DetailPesananScreen() {
   
   const cameraRef = useRef<any>(null);
   const [permission, requestPermission] = useCameraPermissions();
+  const { cartItems, updateQuantity, clearCart, getCartTotal, getCartCount } = useCart();
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -37,7 +39,6 @@ export default function DetailPesananScreen() {
 
   const openCamera = async () => {
     if (!permission) {
-      // Permissions are loading
       return;
     }
     
@@ -72,6 +73,22 @@ export default function DetailPesananScreen() {
     }
   };
 
+  const handleCompleteOrder = () => {
+    Alert.alert(
+      "Pesanan Selesai",
+      "Terima kasih! Bukti penerimaan telah diunggah dan pesanan diselesaikan.",
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            clearCart();
+            router.replace("/");
+          },
+        },
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -104,43 +121,80 @@ export default function DetailPesananScreen() {
     );
   }
 
+  // Tampilan ketika keranjang kosong
+  if (cartItems.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyIcon}>🛒</Text>
+        <Text style={styles.emptyText}>Keranjang Belanja Kosong</Text>
+        <Text style={styles.emptySubtext}>Silakan kembali ke katalog untuk menambahkan menu.</Text>
+        <TouchableOpacity
+          style={styles.emptyBackButton}
+          onPress={() => router.replace("/")}
+        >
+          <Text style={styles.emptyBackButtonText}>Pilih Menu Sekarang</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       <Text style={styles.header}>Detail Pesanan</Text>
 
-      <View style={styles.card}>
-        <Image
-          source={{
-            uri: "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
-          }}
-          style={styles.foodImage}
-        />
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.foodName}>Burger Cheese</Text>
-
-          <Text style={styles.description}>
-            Burger premium dengan daging sapi, keju mozzarella, dan sayuran segar.
-          </Text>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Nomor Pesanan</Text>
-            <Text style={styles.value}>FD-001</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Jumlah</Text>
-            <Text style={styles.value}>2 Item</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Total</Text>
-            <Text style={styles.price}>Rp 50.000</Text>
-          </View>
-
+      {/* Info Status Pesanan */}
+      <View style={styles.statusCard}>
+        <View style={styles.row}>
+          <Text style={styles.statusLabel}>Nomor Pesanan</Text>
+          <Text style={styles.statusValue}>FD-001</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.statusLabel}>Status</Text>
           <View style={styles.statusBox}>
             <Text style={styles.statusText}>Sedang Diproses</Text>
           </View>
+        </View>
+      </View>
+
+      {/* Rincian Menu Pesanan (Data Dinamis Basis Data Keranjang) */}
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Rincian Menu ({getCartCount()} Item)</Text>
+        <View style={styles.divider} />
+
+        {cartItems.map((item) => (
+          <View key={item.id} style={styles.itemRow}>
+            <Image source={{ uri: item.image }} style={styles.itemImage} />
+            <View style={styles.itemDetails}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemPrice}>
+                {item.quantity}x {item.price}
+              </Text>
+              <Text style={styles.itemSubtotal}>
+                Subtotal: Rp {(item.priceNum * item.quantity).toLocaleString("id-ID")}
+              </Text>
+            </View>
+            <View style={styles.controlsRow}>
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={() => updateQuantity(item.id, -1)}
+              >
+                <Text style={styles.controlButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.qtyText}>{item.quantity}</Text>
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={() => updateQuantity(item.id, 1)}
+              >
+                <Text style={styles.controlButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+
+        <View style={styles.divider} />
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Total Pembayaran</Text>
+          <Text style={styles.summaryValue}>Rp {getCartTotal().toLocaleString("id-ID")}</Text>
         </View>
       </View>
 
@@ -151,9 +205,14 @@ export default function DetailPesananScreen() {
         {photoUri ? (
           <View>
             <Image source={{ uri: photoUri }} style={styles.proofImage} />
-            <TouchableOpacity style={styles.secondaryActionButton} onPress={openCamera}>
-              <Text style={styles.secondaryActionButtonText}>Foto Ulang</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRowInline}>
+              <TouchableOpacity style={[styles.photoButtonHalf, styles.btnSecondary]} onPress={openCamera}>
+                <Text style={styles.photoButtonText}>Foto Ulang</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.photoButtonHalf, styles.btnSuccess]} onPress={handleCompleteOrder}>
+                <Text style={styles.photoButtonText}>Konfirmasi</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ) : (
           <View>
@@ -202,64 +261,135 @@ const styles = StyleSheet.create({
     color: "#E63946",
     marginBottom: 20,
   },
-  card: {
+  statusCard: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  statusLabel: {
+    fontSize: 14,
+    color: "#555",
+  },
+  statusValue: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  statusBox: {
+    backgroundColor: "#FFE5B4",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  statusText: {
+    color: "#C76B00",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  sectionCard: {
     backgroundColor: "white",
     borderRadius: 20,
-    overflow: "hidden",
+    padding: 20,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  foodImage: {
-    width: "100%",
-    height: 200,
-  },
-  infoContainer: {
-    padding: 20,
-  },
-  foodName: {
-    fontSize: 24,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
     color: "#222",
   },
-  description: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 22,
+  divider: {
+    height: 1,
+    backgroundColor: "#E2E8F0",
+    marginVertical: 12,
+  },
+  itemRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
-  row: {
+  itemImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+  itemDetails: {
+    flex: 1,
+    paddingLeft: 12,
+  },
+  itemName: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  itemPrice: {
+    fontSize: 13,
+    color: "#666",
+    marginTop: 2,
+  },
+  itemSubtotal: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#E63946",
+    marginTop: 2,
+  },
+  controlsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F1F5F9",
+    borderRadius: 10,
+    padding: 4,
+  },
+  controlButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 1,
+  },
+  controlButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#1E293B",
+  },
+  qtyText: {
+    marginHorizontal: 10,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1E293B",
+  },
+  summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    alignItems: "center",
+    marginTop: 8,
   },
-  label: {
-    fontSize: 15,
-    color: "#555",
+  summaryLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#222",
   },
-  value: {
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  price: {
-    fontSize: 17,
+  summaryValue: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#E63946",
-  },
-  statusBox: {
-    backgroundColor: "#FFE5B4",
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  statusText: {
-    color: "#C76B00",
-    fontWeight: "bold",
-    fontSize: 15,
   },
   proofSection: {
     backgroundColor: "white",
@@ -311,15 +441,26 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
   },
-  secondaryActionButton: {
-    backgroundColor: "#6C757D",
+  buttonRowInline: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  photoButtonHalf: {
+    flex: 1,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
+    marginHorizontal: 4,
   },
-  secondaryActionButtonText: {
+  btnSecondary: {
+    backgroundColor: "#6C757D",
+  },
+  btnSuccess: {
+    backgroundColor: "#2A9D8F",
+  },
+  photoButtonText: {
     color: "white",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   cameraContainer: {
@@ -388,6 +529,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   backButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  
+  // Empty State Styles
+  emptyContainer: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 30,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 20,
+  },
+  emptyText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#2D3748",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#718096",
+    textAlign: "center",
+    marginBottom: 30,
+    lineHeight: 20,
+  },
+  emptyBackButton: {
+    backgroundColor: "#E63946",
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  emptyBackButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",

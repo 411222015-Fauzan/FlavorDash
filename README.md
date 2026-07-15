@@ -1,72 +1,41 @@
 # FlavorDash 🍳
 
-FlavorDash adalah aplikasi katalog dan pemesanan makanan berbasis **React Native** dan **Expo**. Aplikasi ini dirancang agar responsif pada berbagai ukuran layar Android, memiliki proteksi keamanan rute berbasis JWT, serta dilengkapi dengan fitur kamera untuk bukti penerimaan pesanan dan peta lokasi restoran/tujuan.
+FlavorDash adalah aplikasi pemesanan makanan mobile yang dibangun dengan **React Native** dan **Expo**. Aplikasi menampilkan katalog menu, keranjang belanja, otentikasi sederhana, bukti penerimaan lewat kamera, dan peta lokasi restoran.
 
----
+## 📌 Ringkasan
+FlavorDash memperlihatkan alur pemesanan dari katalog makanan hingga detail pesanan yang dilindungi otentikasi, lalu menambahkan fitur bukti penerimaan dan peta pengantaran.
 
-## 🚀 Fitur Utama
+## 🧰 Stack Teknis
+- Bahasa pemrograman: **TypeScript**
+- Framework: **React Native** + **Expo**
+- Routing: **expo-router**
+- Storage lokal: **expo-secure-store**
+- Kamera: **expo-camera**
+- Peta: **react-native-maps**
+- UI: **react-native-safe-area-context**, **@expo/vector-icons**, **react-native-gesture-handler**
 
-1. **Katalog Makanan (Responsive Flexbox Row Layout)**
-   - Desain layout responsif berbentuk baris (row) menggunakan Flexbox sehingga tersusun rapi di berbagai ukuran layar Android.
-   - Simulasi pengambilan data makanan dari **Mock API** dengan status memuat (`ActivityIndicator`).
-   - Pendeteksian status login secara real-time yang memperbarui tombol tindakan di halaman utama.
+## 🤖 AI Recommendation
+- Tidak ada integrasi API AI atau OpenAI dalam kode saat ini.
 
-2. **Detail Pesanan Terproteksi (JWT & Middleware)**
-   - Halaman Detail Pesanan dilindungi oleh **Middleware Navigasi** pada Expo Router (`app/_layout.tsx`).
-   - Token JWT divalidasi dan disimpan dengan aman menggunakan `expo-secure-store`.
-   - Pengguna yang belum terautentikasi akan otomatis diarahkan kembali ke halaman Login ketika mencoba mengakses halaman terproteksi.
+## 🗄️ Database / API
+- Tidak menggunakan backend database eksternal.
+- Data menu diambil dari **mock data lokal** di halaman utama.
+- Token JWT dan keranjang disimpan secara lokal menggunakan **expo-secure-store**.
 
-3. **Fitur Kamera (Bukti Penerimaan)**
-   - Fitur kamera native terintegrasi di halaman Detail Pesanan menggunakan `expo-camera`.
-   - Mengambil foto bukti penerimaan pesanan secara instan, menyimpannya di memori lokal, dan menampilkannya sebagai preview di halaman Detail Pesanan.
-   - Dilengkapi tombol "Foto Ulang" jika foto yang diambil ingin diganti.
+## 🔄 Flow Aplikasi
+1. Halaman utama menampilkan daftar makanan dan minuman dari mock API lokal.
+2. Pengguna dapat menambahkan item ke keranjang menggunakan konteks global (`CartContext`).
+3. Halaman `detail-pesanan` hanya dapat diakses setelah login; middleware di `app/_layout.tsx` mengarahkan ulang pengguna yang belum otentikasi.
+4. Di halaman detail pesanan, pengguna dapat melihat ringkasan item, mengubah jumlah, dan mengambil foto bukti penerimaan menggunakan kamera.
+5. Tombol peta membuka halaman `maps` dengan lokasi restoran dan lokasi pengguna, menggunakan `react-native-maps` pada mobile dan iframe Google Maps pada web.
 
-4. **Fitur Peta (Maps)**
-   - Menampilkan peta lokasi restoran pengirim dan lokasi pengantaran pengguna lengkap dengan **dua marker** penanda yang jelas.
-   - Menggunakan `react-native-maps` untuk perangkat mobile (Android & iOS) dan otomatis menggunakan **Google Maps/OpenStreetMap interactive iframe** sebagai fallback di platform Web untuk mencegah crash dan mempermudah evaluasi.
+## 🧭 Cara Menjalankan
+1. Buka folder proyek di terminal.
+2. Jalankan `npm install`.
+3. Jalankan `npx expo start`.
+4. Pilih target platform: Android, iOS, atau Web.
 
----
-
-## 🔑 Akun Demo untuk Pengujian
-
-Gunakan kredensial berikut untuk menguji fitur terproteksi:
-- **Username**: `fauzan`
-- **Password**: `123456`
-
----
-
-## 🛠️ Persyaratan Sistem
-
-- **Node.js**: v18 atau yang lebih baru
-- **NPM**: v9 atau yang lebih baru
-- **Expo CLI**: Terbaru (Expo SDK 54)
-
----
-
-## ⚙️ Cara Menjalankan Aplikasi
-
-1. **Unduh/Buka Folder Proyek**
-   Pastikan Anda berada di direktori utama proyek `FlavorDash`.
-
-2. **Instalasi Dependensi**
-   Jalankan perintah berikut di terminal untuk menginstal semua modul yang diperlukan:
-   ```bash
-   npm install
-   ```
-
-3. **Jalankan Development Server**
-   Mulai server Expo menggunakan perintah berikut:
-   ```bash
-   npx expo start
-   ```
-
-4. **Memilih Platform Berjalan**:
-   - Tekan **`a`** untuk menjalankan pada Emulator Android.
-   - Tekan **`i`** untuk menjalankan pada Simulator iOS.
-   - Tekan **`w`** untuk menjalankan pada Web Browser.
-
-5. **Linting (Opsional)**
-   Untuk memastikan kebersihan kode dan kesesuaian tipe data TypeScript:
-   ```bash
-   npm run lint
-   ```
+## ⚙️ Catatan Teknis
+- Autentikasi sederhana menggunakan token JWT dummy disimpan di SecureStore.
+- `checkAuth()` di `utils/middleware.ts` memvalidasi token sebelum mengizinkan akses ke halaman terproteksi.
+- Keranjang belanja persistensi lokal diimplementasikan di `context/CartContext.tsx`.
